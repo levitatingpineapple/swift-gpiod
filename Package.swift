@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "swift-gpiod",
+    products: [.library(name: "Gpio", targets: ["Gpio"])],
     targets: [
         .systemLibrary(name: "gpiod"),
         .target(
