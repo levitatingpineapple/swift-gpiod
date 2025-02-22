@@ -72,20 +72,23 @@ public actor Gpio {
 		)
 	}
 
-	public func get(gpio offset: UInt32, flags: RequestFlags = []) throws {
-		try handle(
-			gpiod_line_get_value(
-				line(at: offset) { line in
-					gpiod_line_request_input_flags(
-						line,
-						Self.consumer,
-						flags.rawValue
-					)
-				}
-			),
-			with: .unableToGetValue
-		)
+	public func get(gpio offset: UInt32, flags: RequestFlags = []) throws -> Bool {
+		switch try gpiod_line_get_value(
+			line(at: offset) { line in
+				gpiod_line_request_input_flags(
+					line,
+					Self.consumer,
+					flags.rawValue
+				)
+			}
+		) {
+		case -1: throw Err.unableToGetValue
+		case 0: false
+		case 1: true
+		default: throw Err.unexpectedReturnValue
+		}
 	}
+	
 
 	public func stream(gpio offset: UInt32, flags: RequestFlags = []) throws -> AsyncStream<Bool> {
 		AsyncStream { continuation in
